@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/res">
+        <file>gamefield.png</file>
+        <file>apple.png</file>
+        <file>wood.jpg</file>
+    </qresource>
+</RCC>
