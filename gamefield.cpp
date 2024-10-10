@@ -20,6 +20,7 @@ void GameField::paintEvent(QPaintEvent *e)
     QPainter painter;
     painter.begin(this);
 
+
     if (gameStatus){
         painter.setPen(QColor(30, 128, 0, 120));
         painter.setFont(QFont("Arial", 30, 700));
@@ -48,17 +49,21 @@ void GameField::keyPressEvent(QKeyEvent *e)
 {
     Snake::SnakeMoveDirection currentDirection = gameSnake->snakeMoveDirection;
 
-    if ((e->key() == Qt::Key_Right || e->key() == Qt::Key_D) && currentDirection != Snake::SnakeMoveDirection::left){
+    if ((e->key() == Qt::Key_Right || e->key() == Qt::Key_D) && currentDirection != Snake::SnakeMoveDirection::left && keyBlock){
         gameSnake->snakeMoveDirection = Snake::SnakeMoveDirection::right;
+        keyBlock = false;
     }
-    else if ((e->key() == Qt::Key_Left || e->key() == Qt::Key_A) && currentDirection != Snake::SnakeMoveDirection::right){
+    else if ((e->key() == Qt::Key_Left || e->key() == Qt::Key_A) && currentDirection != Snake::SnakeMoveDirection::right && keyBlock){
         gameSnake->snakeMoveDirection = Snake::SnakeMoveDirection::left;
+         keyBlock = false;
     }
-    else if ((e->key() == Qt::Key_Down || e->key() == Qt::Key_S) && currentDirection != Snake::SnakeMoveDirection::up){
+    else if ((e->key() == Qt::Key_Down || e->key() == Qt::Key_S) && currentDirection != Snake::SnakeMoveDirection::up && keyBlock){
         gameSnake->snakeMoveDirection = Snake::SnakeMoveDirection::down;
+         keyBlock = false;
     }
-    else if ((e->key() == Qt::Key_Up || e->key() == Qt::Key_W) && currentDirection != Snake::SnakeMoveDirection::down){
+    else if ((e->key() == Qt::Key_Up || e->key() == Qt::Key_W) && currentDirection != Snake::SnakeMoveDirection::down && keyBlock){
         gameSnake->snakeMoveDirection = Snake::SnakeMoveDirection::up;
+         keyBlock = false;
     }
     else if (e->key() == Qt::Key_Escape){
         qApp->quit();
@@ -90,10 +95,17 @@ void GameField::StartNewGame()
     food = new SnakeItems(fieldSize / 2, fieldSize / 2);
     gameScore = 0;
     gameStatus = false;
+    keyBlock = true;
     connect(moveSnakeTimer, &QTimer::timeout, this, &GameField::MoveSnakeSlot);
+    connect(moveSnakeTimer, &QTimer::timeout, this, &GameField::openKeyBlock);
     snakeMoves.append("right");
     moveSnakeTimer -> start(120);
 
+}
+
+void GameField::openKeyBlock()
+{
+    keyBlock = true;
 }
 
 void GameField::CreateFood()
@@ -129,13 +141,14 @@ void GameField::MoveSnakeSlot()
         newSnakeItem = new SnakeItems(gameSnake->snakeBody[0]->snake_x, gameSnake->snakeBody[0]->snake_y + 1);
     }
 
-
     if (newSnakeItem->snake_x >= fieldSize || newSnakeItem->snake_x < 0 ||
-        newSnakeItem->snake_y >= fieldSize || newSnakeItem->snake_y < 0){
+        newSnakeItem->snake_y >= fieldSize || newSnakeItem->snake_y < 0)
+     {
         GameOver();
         delete newSnakeItem;
     }
-    else {
+    else if (gameSnake->snakeBody.size() > 3)
+    {
         for (int i = 0; i < gameSnake->snakeBody.size(); i++){
             if (newSnakeItem->snake_x == gameSnake->snakeBody[i]->snake_x && newSnakeItem->snake_y == gameSnake->snakeBody[i]->snake_y){
                 GameOver();

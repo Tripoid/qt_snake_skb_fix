@@ -58,6 +58,7 @@ private:
     QTimer *moveSnakeTimer;
     int fieldSize;
     int gameScore;
+    bool keyBlock;
     bool gameStatus;
     void GameOver();
     void StartNewGame();
@@ -68,6 +69,7 @@ private:
 
 private slots:
     void MoveSnakeSlot();
+    void openKeyBlock();
 
 };
 
